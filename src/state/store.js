@@ -44,13 +44,22 @@ export function reducer(state, action) {
       return { ...state, expenses: [...state.expenses, action.expense] };
     }
     case "DELETE_EXPENSE": {
-      const next = state.expenses.slice();
-      next.splice(action.index, 1);
+      const next = state.expenses.filter((expense) => {
+        if (action.id !== undefined) return expense.id !== action.id;
+        return expense.id !== state.expenses[action.index]?.id;
+      });
       return { ...state, expenses: next };
     }
     case "UPDATE_EXPENSE": {
-      const next = state.expenses.slice();
-      next[action.index] = { ...next[action.index], ...action.patch };
+      const next = state.expenses.map((expense) => {
+        if (action.id !== undefined) {
+          return expense.id === action.id ? { ...expense, ...action.patch } : expense;
+        }
+        return expense;
+      });
+      if (action.index !== undefined) {
+        next[action.index] = { ...next[action.index], ...action.patch };
+      }
       return { ...state, expenses: next };
     }
     case "ADD_MEMBER": {
